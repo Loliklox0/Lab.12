@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Вход в библиотеку</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #0d0d0f;
+            font-family: "Inter", sans-serif;
+            color: #e6e6e6;
+        }
+
+        .box {
+            width: 330px;
+            padding: 28px;
+            background: #1a1b1f;
+            border-radius: 14px;
+            box-shadow: 0 0 25px rgba(0,0,0,0.4);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 18px;
+            font-weight: 600;
+        }
+
+        input {
+            width: 100%;
+            padding: 11px;
+            border: none;
+            border-radius: 7px;
+            margin: 10px 0;
+            background: #2a2b31;
+            color: #f1f1f1;
+            outline: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 11px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 7px;
+            background: #3d6df7;
+            color: white;
+            cursor: pointer;
+            transition: 0.25s;
+        }
+
+        button:hover {
+            background: #345fe0;
+        }
+
+        .danger {
+            background: #d64949;
+        }
+
+        .danger:hover {
+            background: #b83c3c;
+        }
+
+        pre {
+            background: #202125;
+            padding: 12px;
+            border-radius: 7px;
+            white-space: pre-wrap;
+            margin-top: 12px;
+        }
+
+        #dashboard { display: none; }
+        #users { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="box">
+
+    <div id="loginArea">
+        <h2>Авторизация</h2>
+        <input id="mail" type="email" placeholder="Email">
+        <input id="pass" type="password" placeholder="Пароль">
+        <button onclick="enter()">Войти</button>
+    </div>
+
+    <div id="dashboard">
+        <h2>Добро пожаловать</h2>
+        <p>Ваш токен:</p>
+        <pre id="token"></pre>
+
+        <button onclick="loadUsers()">Показать пользователей</button>
+        <pre id="users"></pre>
+
+        <button class="danger" onclick="exitUser()">Выйти</button>
+    </div>
+
+</div>
+
+<script>
+    let stored = JSON.parse(localStorage.getItem("records")) || [];
+
+    window.onload = () => {
+        const t = localStorage.getItem("auth_token");
+        if (t) showPanel(t);
+    };
+
+    function enter() {
+        const m = mail.value.trim();
+        const p = pass.value.trim();
+        if (!m || !p) return alert("Заполните поля");
+
+        const t = "token-" + Math.random().toString(36).slice(2);
+        localStorage.setItem("auth_token", t);
+
+        stored.push({ email: m, time: new Date().toLocaleString() });
+        localStorage.setItem("records", JSON.stringify(stored));
+
+        showPanel(t);
+    }
+
+    function showPanel(t) {
+        loginArea.style.display = "none";
+        dashboard.style.display = "block";
+        token.textContent = t;
+    }
+
+    function loadUsers() {
+        const list = JSON.parse(localStorage.getItem("records")) || [];
+        users.textContent = list.length
+            ? list.map(x => `Email: ${x.email}\nВход: ${x.time}`).join("\n\n")
+            : "Нет записей.";
+        users.style.display = "block";
+    }
+
+    function exitUser() {
+        localStorage.removeItem("auth_token");
+        location.reload();
+    }
+</script>
+</body>
+</html>
